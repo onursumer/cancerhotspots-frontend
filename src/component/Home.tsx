@@ -1,11 +1,11 @@
 import * as React from 'react';
-// import ReactTable from 'react-table'
 import {observer} from 'mobx-react';
-// import {Button} from "react-bootstrap";
-
 import 'react-table/react-table.css';
-import HotspotStore from "../store/HotspotStore";
 import ReactTable from "react-table";
+
+import HotspotStore from "../store/HotspotStore";
+import MutationInfoV2 from "./MutationInfoV2";
+import StackedBar from "./StackedBar";
 
 interface HomeProps
 {
@@ -30,7 +30,7 @@ class Home extends React.Component<HomeProps>
 
     public render()
     {
-        const data = this.store.hotspots;
+        const data = this.store.hotspotData;
 
         const columns = [
             {
@@ -46,6 +46,11 @@ class Home extends React.Component<HomeProps>
                 accessor: 'type',
             },
             {
+                Header: 'Variants',
+                accessor: 'variantAminoAcid',
+                Cell: (props: any) => <StackedBar values={props.value} />
+            },
+            {
                 Header: 'Q-value',
                 accessor: 'qValue',
             },
@@ -55,16 +60,27 @@ class Home extends React.Component<HomeProps>
             }
         ];
 
-        return (
-            <ReactTable
-                data={data}
-                columns={columns}
-                filterable={false}
-                showPagination={true}
-                pageSize={20}
-            />
-        );
-
+        if (data.status === 'pending') {
+            return <span>TODO: Loader!</span>
+        }
+        else if (data.status === 'error') {
+            return <span>TODO: Error!</span>
+        }
+        else {
+            return (
+                <div>
+                    <MutationInfoV2 />
+                    <ReactTable
+                        data={data.result}
+                        columns={columns}
+                        filterable={false}
+                        showPagination={true}
+                        pageSize={20}
+                        className="-striped -highlight"
+                    />
+                </div>
+            );
+        }
     }
 }
 
