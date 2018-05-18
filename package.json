@@ -15,7 +15,7 @@
     "react-scripts-ts": "2.14.0",
     "react-table": "^6.8.0",
     "superagent": "^3.8.2",
-    "victory": "^0.25.7"
+    "victory": "^0.26.1"
   },
   "scripts": {
     "start": "react-scripts-ts start",
@@ -40,7 +40,6 @@
     "@types/react-router-dom": "^4.2.6",
     "@types/react-table": "^6.7.7",
     "@types/superagent": "^3.5.7",
-    "@types/victory": "^0.9.16",
     "fs": "0.0.1-security",
     "json": "^9.0.6",
     "path": "^0.12.7",

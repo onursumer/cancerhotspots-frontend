@@ -1,12 +1,12 @@
 import * as React from 'react';
 import * as _ from 'lodash';
-import {VictoryStack, VictoryBar } from 'victory';
-
+import {VictoryStack, VictoryBar, VictoryLabel, VictoryPortal} from 'victory';
 
 interface VariantStackProps
 {
     values: {[name: string]: number};
     size?: number;
+    padding?: number;
 }
 
 const VARIANT_TYPE_STYLE = {
@@ -37,6 +37,11 @@ const VARIANT_TYPE_STYLE = {
     "*": {color: "#090303"}
 };
 
+function sumArray(values: number[])
+{
+    return values.reduce(((accumulator, currentValue) => accumulator + currentValue), 0);
+}
+
 class StackedBar extends React.Component<VariantStackProps>
 {
     constructor(props: VariantStackProps) {
@@ -44,36 +49,68 @@ class StackedBar extends React.Component<VariantStackProps>
     }
 
     public static defaultProps: Partial<VariantStackProps> = {
-        size: 25
+        size: 35,
+        padding: 10
     };
 
     public render()
     {
+        const total = sumArray(_.values(this.props.values));
+
         const bars = _.entries(this.props.values)
             .sort((a, b) => a[1] > b[1] ? -1 : 1)
             .map((pair: any[], index: number) => {
-            const data = [
-                {
-                    x: 1,
-                    y: pair[1],
-                    width: this.props.size,
-                    fill: VARIANT_TYPE_STYLE[pair[0]].color
-                }
-            ];
+                const data = [
+                    {
+                        x: 0,
+                        y: pair[1]
+                    }
+                ];
 
-            return (
-                <VictoryBar
-                    horizontal={true}
-                    key={index}
-                    data={data}
-                />
-            );
-        });
+                const labels = [];
+
+                // only include the label if the ratio is >= 8%
+                if (pair[1]/total >= 0.08) {
+                    labels.push(pair[0]);
+                }
+
+                const labelStyle = {
+                    fill: "#FFF",
+                    fontSize: "150%",
+                    fontWeight: "bold"
+                };
+
+                const labelComponent = (
+                    <VictoryPortal>
+                        <VictoryLabel
+                            style={labelStyle}
+                        />
+                    </VictoryPortal>
+                );
+
+                const style = {
+                    data: {
+                        fill: VARIANT_TYPE_STYLE[pair[0]].color,
+                        width: this.props.size
+                    },
+                };
+
+                return (
+                    <VictoryBar
+                        labels={labels}
+                        labelComponent={labelComponent}
+                        key={index}
+                        data={data}
+                        style={style}
+                    />
+                );
+            });
 
         return (
             <VictoryStack
-                height={this.props.size}
                 horizontal={true}
+                height={this.props.size}
+                padding={this.props.padding}
             >
                 {bars}
             </VictoryStack>
